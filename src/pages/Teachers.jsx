@@ -1,17 +1,41 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Users, UserPlus, Book, LayoutDashboard, Settings, CreditCard, FileText, Star } from "lucide-react";
+import {
+  LogOut,
+  Users,
+  UserPlus,
+  FileText,
+  LayoutDashboard,
+  Settings,
+  CreditCard,
+  Star,
+} from "lucide-react";
+import axios from "axios";
 import logo from "../assets/logo.png";
 import koala from "../assets/koala.png";
-import { useGetTeachersQuery } from "../redux/api";
 
 const Teachers = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [teachers, setTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: teachers, error, isLoading } = useGetTeachersQuery();
+  useEffect(() => {
+    axios
+      .get("https://jsonplaceholder.typicode.com/users")
+      .then((res) => {
+        setTeachers(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setIsLoading(false);
+      });
+  }, []);
 
   const results = teachers?.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -20,11 +44,10 @@ const Teachers = () => {
   const handleLogout = () => {
     setShowModal(true);
     localStorage.clear();
-    console.log("Logged out");
     setTimeout(() => {
       setShowModal(false);
       navigate("/login");
-    }, 2000);
+    }, 1500);
   };
 
   return (
@@ -99,7 +122,7 @@ const Teachers = () => {
         </button>
       </div>
 
-      <div className="flex-1 p-10 bg-white">
+      <div className="flex-1 p-10 bg-white overflow-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-700">Teachers</h2>
           <Link
@@ -113,7 +136,7 @@ const Teachers = () => {
         <div className="mb-6">
           <input
             type="text"
-            placeholder="Search for a teacher by name or email"
+            placeholder="Search for a teacher by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full p-3 rounded bg-[#fefcfc] border border-gray-200"
@@ -123,7 +146,7 @@ const Teachers = () => {
         {isLoading ? (
           <div>Loading...</div>
         ) : error ? (
-          <div>Error: {error.message}</div>
+          <div className="text-red-600">Error: {error.message}</div>
         ) : results?.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center text-gray-500 mt-20">
             <img src={koala} alt="no teachers" className="w-64 mb-4" />
@@ -139,28 +162,33 @@ const Teachers = () => {
                 <th className="p-3">Name</th>
                 <th className="p-3">Subject</th>
                 <th className="p-3">Class</th>
-                <th className="p-3">Email address</th>
+                <th className="p-3">Email</th>
                 <th className="p-3">Gender</th>
               </tr>
             </thead>
             <tbody>
               {results.map((teacher, index) => (
                 <tr
-                  key={index}
+                  key={teacher.id}
                   className={index % 2 === 0 ? "bg-white" : "bg-blue-50"}
                 >
-                  <td className="p-3 flex items-center gap-2">
-                    <img
-                      src={teacher.avatar || "https://i.pravatar.cc/40"}
-                      alt={teacher.name}
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>{teacher.name}</span>
+                  <td className="p-3">
+                    <Link
+                      to={`/teacher/${teacher.id}`}
+                      className="flex items-center gap-2 hover:underline"
+                    >
+                      <img
+                        src={`https://i.pravatar.cc/40?u=${teacher.id}`}
+                        alt={teacher.name}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <span>{teacher.name}</span>
+                    </Link>
                   </td>
-                  <td className="p-3">{teacher.subject}</td>
-                  <td className="p-3">{teacher.class}</td>
+                  <td className="p-3">Math</td>
+                  <td className="p-3">8A</td>
                   <td className="p-3">{teacher.email}</td>
-                  <td className="p-3">{teacher.gender}</td>
+                  <td className="p-3">{index % 2 === 0 ? "Male" : "Female"}</td>
                 </tr>
               ))}
             </tbody>
@@ -170,7 +198,7 @@ const Teachers = () => {
 
       {showModal && (
         <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4">
-          <div className="p-4 rounded shadow text-center text-lg w-full max-w-xs">
+          <div className="p-4 rounded shadow text-center text-lg w-full max-w-xs bg-white">
             Logging out...
           </div>
         </div>

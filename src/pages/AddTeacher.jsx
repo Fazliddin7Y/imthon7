@@ -19,16 +19,21 @@ const AddTeachers = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch("https://nt-devconnector.onrender.com/create-profile", {
+      const response = await fetch("https://jsonplaceholder.typicode.com/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          gender: form.gender,
+          subject: form.subject,
+          class: form.class,
+          avatar: form.avatar,
+        }),
       });
 
       if (!response.ok) {
@@ -37,6 +42,7 @@ const AddTeachers = () => {
 
       const result = await response.json();
       console.log("Added:", result);
+
       navigate("/teachers");
     } catch (error) {
       console.error("Error:", error.message);
@@ -138,7 +144,7 @@ const AddTeachers = () => {
                 value={form.avatar}
                 onChange={handleChange}
                 className="w-full p-3 border border-gray-300 rounded"
-                placeholder="Optional image URL"
+                placeholder="Enter image URL"
               />
             </div>
           </div>

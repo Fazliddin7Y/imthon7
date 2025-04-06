@@ -6,7 +6,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Teachers from "./pages/Teachers";
 import AddTeacher from "./pages/AddTeacher";
-import SingleTeacher from "./pages/SingleTeacher";
+import TeacherDetails from "./pages/TeacherDetails";
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teacher/add" element={<AddTeacher />} />
-          <Route path="/teachers/:id" element={<SingleTeacher />} />
+          <Route path="/teacher/:id" element={<TeacherDetails />} />
         </Routes>
       </BrowserRouter>
     </Provider>
